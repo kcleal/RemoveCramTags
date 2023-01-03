@@ -20,7 +20,7 @@ If you have htslib in a directory somewhere::
 
 Otherwise set LDFLAGS and CPPFLAGS, e.g::
 
-    CPPFLAGS="-I/htslib/include" LDFLAGS+="-L/htslib/lib" make
+    CPPFLAGS="-I/htslib" LDFLAGS+="-L/htslib" make
 
 Usage
 -----
