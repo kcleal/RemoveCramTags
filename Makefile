@@ -1,20 +1,19 @@
 TARGET = RemoveCramTags
 
-CXXFLAGS += -Wall -std=c++14 -fno-common -dynamic -fwrapv -O3 -DNDEBUG -pipe
-LDLIBS += -lhts
+CXXFLAGS += -Wall -std=c++11 -fno-common -dynamic -fwrapv -O3 -DNDEBUG -pipe
+LDLIBS += -lhts -lzlib
 
 # try and add conda environment
 ifdef CONDA_PREFIX
     CPPFLAGS+=-I$(CONDA_PREFIX)/include
     LDFLAGS+=-L$(CONDA_PREFIX)/lib
 endif
-#
-## Options to use target htslib or skia
-#HTSLIB ?= ""
-#ifneq ($(HTSLIB),"")
-#    CPPFLAGS += -I$(HTSLIB)
-#    LDFLAGS += -L$(HTSLIB)
-#endif
+
+## Options to use target htslib
+ifdef HTSLIB
+    CPPFLAGS += -I$(HTSLIB)
+    LDFLAGS += -L$(HTSLIB)
+endif
 
 .PHONY: default all debug clean
 
