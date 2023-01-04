@@ -1,6 +1,8 @@
 RemoveCramTags
 ==============
 
+Note, this is not usable yet!
+
 What is this?
 -------------
 

@@ -4,6 +4,7 @@
 #include "htslib/hfile.h"
 #include "htslib/hts.h"
 #include "htslib/sam.h"
+#include "htslib/cram.h"
 
 bool endsWith(const std::string &mainStr, const std::string &toMatch) {
     if (mainStr.size() >= toMatch.size() &&
@@ -30,30 +31,42 @@ int main(int argc, char** argv) {
     const char* inputf = argv[4];
     const char* outf = argv[5];
 
-    std::string o_str = argv[5];
-    std::string mode = "w";
-    if (endsWith(o_str, ".sam")) {
-    } else if (endsWith(o_str, ".bam")) {
-        mode = "wb";
-    } else if (endsWith(o_str, ".cram")) {
-        mode = "wC";
-    } else if (o_str == "-") {
-        std::cerr << "Using CRAM format for output file\n";
-        mode = "wC";
-    } else {
-        std::cerr << "File extension not recognised for output file\n";
-        return -1;
-    }
     int res;
 
     samFile* fi = sam_open(inputf, "r");
     res = hts_set_fai_filename(fi, ref);
     res = hts_set_threads(fi, threads_decomp);
 
+    std::string o_str = argv[5];
+    std::string mode = "w";
+    samFile* fo = nullptr;
+    cram_fd* fc = nullptr;
+    bool write_cram = false;
+
+    if (endsWith(o_str, ".sam")) {
+        fo = sam_open(outf, mode.c_str());
+    } else if (endsWith(o_str, ".bam")) {
+        mode = "wb";
+        fo = sam_open(outf, mode.c_str());
+    } else if (endsWith(o_str, ".cram")) {
+        mode = "wc";
+        fc = cram_open(outf, "w");
+        write_cram = true;
+    } else if (o_str == "-") {
+        std::cerr << "Using CRAM format for output file\n";
+        mode = "wc";
+        fc = cram_open(outf, "w");
+        write_cram = true;
+    } else {
+        std::cerr << "File extension not recognised for output file\n";
+        return -1;
+    }
     std::cout << "Write mode: " << mode << std::endl;
-    samFile* fo = sam_open(outf, mode.c_str());
-    res = hts_set_fai_filename(fo, ref);
-    res = hts_set_threads(fo, threads_comp);
+    if (!write_cram) {
+        res = hts_set_fai_filename(fo, ref);
+        res = hts_set_threads(fo, threads_comp);
+    } else {
+    }
 
     sam_hdr_t* samHdr = sam_hdr_read(fi);
     if (!samHdr) {
@@ -61,10 +74,14 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    res = sam_hdr_write(fo, samHdr);
-    if (res < 0) {
-        std::cerr << "Failed to copy header\n";
-        return -1;
+    if (!write_cram) {
+        res = sam_hdr_write(fo, samHdr);
+        if (res < 0) {
+            std::cerr << "Failed to copy header\n";
+            return -1;
+        }
+    } else {
+        cram_fd_set_header(fc, samHdr);
     }
 
     std::string tags = argv[6];
@@ -89,6 +106,7 @@ int main(int argc, char** argv) {
     bam1_t* src = bam_init1();
     long count = 0;
     long tags_removed = 0;
+    cram_container *c = nullptr;
     while (sam_read1(fi, samHdr, src) >= 0) {
         for (auto &t : tagsv) {
             uint8_t* data = bam_aux_get(src, t);
@@ -97,7 +115,12 @@ int main(int argc, char** argv) {
                 tags_removed += 1;
             }
         }
-        res = sam_write1(fo, samHdr, src);
+        if (!write_cram) {
+            res = sam_write1(fo, samHdr, src);
+        } else {
+            res = sam_write1(fc, samHdr, src);
+        }
+
         count += 1;
     }
     std::cout << "RemoveCramTags processed " << count << " alignments - " << tags_removed << " tags removed" << std::endl;
