@@ -46,7 +46,6 @@ int main(int argc, char** argv) {
 
     std::string o_str = argv[5];
     std::string mode = "w";
-//    samFile* fo = nullptr;
     cram_fd* fc = nullptr;
     htsFile *h_out = nullptr;
     bool write_cram = false;
@@ -96,7 +95,6 @@ int main(int argc, char** argv) {
     std::vector<const char* > tagsv;
     size_t pos = 0;
     std::string delimiter = ",";
-//    bool remove_all = false;
     if (tags.find(delimiter) != std::string::npos) {
         std::string token;
         while ((pos = tags.find(delimiter)) != std::string::npos) {
@@ -104,17 +102,15 @@ int main(int argc, char** argv) {
             tag_str.push_back(token);
             tags.erase(0, pos + delimiter.length());
         }
-        if (!token.empty()) {
-            tag_str.push_back(token);
+        if (!tags.empty()) {
+            tag_str.push_back(tags);
         }
-//    } else if (tags == "ALL") {
-//        remove_all = true;
+        for (auto &tg: tag_str) {
+            tagsv.push_back(tg.data());
+        }
+
     } else {
         tagsv.push_back(tags.data());
-    }
-
-    for (auto &tg: tag_str) {
-        tagsv.push_back(tg.data());
     }
 
     std::cerr << "Number of tags to remove: " << tagsv.size() << std::endl;
@@ -122,20 +118,13 @@ int main(int argc, char** argv) {
     long count = 0;
     long tags_removed = 0;
     while (sam_read1(fi, samHdr, src) >= 0) {
-//        if (remove_all) {
-//            while (true) {
-//                uint8_t * data = bam_aux_first(src);
-//            }
-//        } else {
-            for (auto &t : tagsv) {
-                uint8_t* data = bam_aux_get(src, t);
-                if (data != nullptr) {
-                    bam_aux_del(src, data);
-                    tags_removed += 1;
-                }
-//            }
+        for (auto &t : tagsv) {
+            uint8_t* data = bam_aux_get(src, t);
+            if (data != nullptr) {
+                bam_aux_del(src, data);
+                tags_removed += 1;
+            }
         }
-
         res = sam_write1(h_out, samHdr, src);
         if (res < 0) {
             std::cerr << "Write failed" << std::endl;
