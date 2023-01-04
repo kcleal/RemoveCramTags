@@ -87,24 +87,19 @@ int main(int argc, char** argv) {
 
     std::cout << "Number of tags to remove: " << tagsv.size() << std::endl;
     bam1_t* src = bam_init1();
-    int count = 0;
-    uint8_t v = 0;
+    long count = 0;
+    long tags_removed = 0;
     while (sam_read1(fi, samHdr, src) >= 0) {
-
         for (auto &t : tagsv) {
-            if (bam_aux_get(src, t) != nullptr) {
-                v = *t;
-                res = bam_aux_del(src, &v);
-                if (res == -1) {
-                    std::cerr << "Delete tag failed\n";
-                    return -1;
-                }
+            uint8_t* data = bam_aux_get(src, t);
+            if (data != nullptr) {
+                bam_aux_del(src, data);
+                tags_removed += 1;
             }
-            res = sam_write1(fo, samHdr, src);
         }
+        res = sam_write1(fo, samHdr, src);
         count += 1;
-
     }
-    std::cout << "RemoveCramTags processed " << count << " alignments" << std::endl;
+    std::cout << "RemoveCramTags processed " << count << " alignments - " << tags_removed << " tags removed" << std::endl;
     return 0;
 }
