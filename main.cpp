@@ -17,7 +17,7 @@ bool endsWith(const std::string &mainStr, const std::string &toMatch) {
 
 int main(int argc, char** argv) {
     if (argc != 7) {
-        std::cout << "RemoveCramTags DThreads CThreads REF INPUT OUTPUT TAGS\n";
+        std::cout << "RemoveCramTags-v0.0.1 DThreads CThreads REF INPUT OUTPUT TAGS\n";
         std::cout << "    DThreads - Decompression threads\n";
         std::cout << "    CThreads - Compression threads\n";
         std::cout << "    REF      - Reference fasta file\n";
@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
         std::cerr << "File extension not recognised for output file\n";
         std::terminate();
     }
-    std::cout << "Write mode: " << mode << std::endl;
+    std::cerr << "Write mode: " << mode << std::endl;
 
     if (!write_cram) {
         hts_set_fai_filename(h_out, ref);
@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
         tagsv.push_back(tg.data());
     }
 
-    std::cout << "Number of tags to remove: " << tagsv.size() << std::endl;
+    std::cerr << "Number of tags to remove: " << tagsv.size() << std::endl;
     bam1_t* src = bam_init1();
     long count = 0;
     long tags_removed = 0;
@@ -144,6 +144,6 @@ int main(int argc, char** argv) {
         count += 1;
     }
     hts_close(h_out);
-    std::cout << "RemoveCramTags processed " << count << " alignments - " << tags_removed << " tags removed" << std::endl;
+    std::cerr << "RemoveCramTags processed " << count << " alignments - " << tags_removed << " tags removed" << std::endl;
     return 0;
 }
