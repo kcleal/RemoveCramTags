@@ -16,9 +16,9 @@ bool endsWith(const std::string &mainStr, const std::string &toMatch) {
 int main(int argc, char** argv) {
     if (argc != 7) {
         std::cout << "RemoveCramTags DThreads CThreads REF INPUT OUTPUT TAGS\n";
-        std::cout << "    DThreads - decompression threads\n";
-        std::cout << "    CThreads - compression threads\n";
-        std::cout << "    REF      - reference fasta file\n";
+        std::cout << "    DThreads - Decompression threads\n";
+        std::cout << "    CThreads - Compression threads\n";
+        std::cout << "    REF      - Reference fasta file\n";
         std::cout << "    INPUT    - Input SAM/BAM/CRAM\n";
         std::cout << "    OUTPUT   - Output SAM/BAM/CRAM\n";
         std::cout << "    TAGS     - List of tags, comma separated\n";
