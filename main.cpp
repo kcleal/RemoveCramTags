@@ -22,6 +22,7 @@ int main(int argc, char** argv) {
         std::cout << "    INPUT    - Input SAM/BAM/CRAM\n";
         std::cout << "    OUTPUT   - Output SAM/BAM/CRAM\n";
         std::cout << "    TAGS     - List of tags, comma separated\n";
+        return 0;
     }
     int threads_decomp = std::stoi(argv[1]);
     int threads_comp = std::stoi(argv[2]);
@@ -35,6 +36,9 @@ int main(int argc, char** argv) {
     } else if (endsWith(o_str, ".bam")) {
         mode = "wb";
     } else if (endsWith(o_str, ".cram")) {
+        mode = "wC";
+    } else if (o_str == "-") {
+        std::cerr << "Using CRAM format for output file\n";
         mode = "wC";
     } else {
         std::cerr << "File extension not recognised for output file\n";

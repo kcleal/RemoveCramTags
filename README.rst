@@ -18,6 +18,12 @@ If you have htslib in a directory somewhere::
     export HTSLIB=/path/to/htslib
     make
 
+If you are using conda-build::
+
+    conda-build .
+    # change this to correct path:
+    conda install miniconda3/conda-bld/linux-64/remove-cram-tags-0.0.1-h2bc3f7f_0.tar.bz2
+
 Otherwise set LDFLAGS and CPPFLAGS, e.g::
 
     CPPFLAGS="-I/htslib" LDFLAGS+="-L/htslib" make
@@ -26,10 +32,14 @@ Usage
 -----
 Run using::
 
+    Usage: RemoveCramTags [ARGS]
+
+Positional arguments::
+
     RemoveCramTags DThreads CThreads REF INPUT OUTPUT TAGS
-        DThreads - decompression threads
-        CThreads - compression threads
-        REF      - reference fasta file
+        DThreads - Decompression threads
+        CThreads - Compression threads
+        REF      - Reference fasta file
         INPUT    - Input SAM/BAM/CRAM
         OUTPUT   - Output SAM/BAM/CRAM
         TAGS     - List of tags, comma separated
@@ -39,4 +49,6 @@ Example usage::
     RemoveCramTags 4 2 $HG19 in.bam out.bam BI,BD
 
     RemoveCramTags 4 2 $HG19 in.bam out.cram BI
+
+    RemoveCramTags 4 2 $HG19 - - BI   # stdin to stdout; output format will be cram
 

@@ -1,0 +1,40 @@
+{% set version = "0.0.1" %}
+
+package:
+  name: remove-cram-tags
+  version: {{ version }}
+
+source:
+  path: .
+  #git_url: https://github.com/kcleal/RemoveCramTags
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - make
+    - {{ compiler('cxx') }}
+    - unzip
+  host:
+    - libcurl
+    - libdeflate
+    - htslib
+  run:
+    - htslib
+
+test:
+  commands:
+    - 'LD_LIBRARY_PATH="${BUILD_PREFIX}/x86_64-conda-linux-gnu/sysroot/usr/lib64:${BUILD_PREFIX}/lib" RemoveCramTags'
+
+about:
+  home: https://github.com/kcleal/RemoveCramTags
+  license: MIT
+  license_file: LICENSE.md
+  summary: 'Remove tags from SAM/BAM/CRAM files'
+
+extra:
+  container:
+    extended-base: True
+  recipe-maintainers:
+    - kcleal
